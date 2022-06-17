@@ -21,6 +21,7 @@
 
 #include "hooks.h"
 #include "config.h"
+#include "../util/Logging.h"
 
 //imgui window process
 //extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(
@@ -76,8 +77,8 @@ bool gui::SetupWindow(const char* windowName) noexcept{
 		WS_EX_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
-		69,//window dimensions
-		420,
+		1920,//window dimensions
+		1080,
 		NULL, //no parent
 		NULL, //no menu
 		windowClass.hInstance,
@@ -240,16 +241,7 @@ void gui::Render() noexcept{
 	ctx->style.checkbox.cursor_hover = nk_style_item_color(nk_rgb(highlight.r, highlight.g, 169));
 	ctx->style.checkbox.cursor_normal = nk_style_item_color(highlight);
 
-	/* Input */
-	MSG msg;
-	nk_input_begin(ctx);
-	while (PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE)) {
-		//if (msg.message == WM_QUIT)
-		//	running = 0;
-		TranslateMessage(&msg);
-		DispatchMessageW(&msg);
-	}
-	nk_input_end(ctx);
+	//////
 
 	if (nk_begin(ctx, "0x1337", nk_rect(50, 50, 275, 300),
 		NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE |
@@ -338,6 +330,16 @@ void gui::Render() noexcept{
 		//}
 		//NK_ASSERT(SUCCEEDED(hr));
 	}
+	/* Input */
+	MSG msg;
+	nk_input_begin(ctx);
+	while (PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE)) {
+		if (msg.message == WM_QUIT)
+			log_console("Nuklear | Quit Button Pressed", Color::Red);
+		TranslateMessage(&msg);
+		DispatchMessageW(&msg);
+	}
+	nk_input_end(ctx);
 }
 
 LRESULT CALLBACK WindowProcess(
@@ -376,8 +378,8 @@ long __stdcall hooks::EndScene(IDirect3DDevice9* device) noexcept {
 	// forward to the original func no matter what
 	HRESULT hr = EndSceneOriginal(device, device);
 
-	// only continue when the return address is a different one than the first
-	if (_ReturnAddress() == returnAddress)
+	// only continue when the return address is the same as the first
+	if (_ReturnAddress() != returnAddress)
 		return hr;
 
 	if (!gui::doneSetup)
