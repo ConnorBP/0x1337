@@ -1,6 +1,9 @@
 #pragma once
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 600
+//#define WINDOW_WIDTH 800
+//#define WINDOW_HEIGHT 600
+
+#ifndef NK_INCLUDE_ONCE
+#define NK_INCLUDE_ONCE
 
 #define NK_INCLUDE_FIXED_TYPES
 #define NK_INCLUDE_STANDARD_IO
@@ -15,3 +18,7 @@
 
 #include "../../ext/nk/nuklear.h"
 #include "../../ext/nk/nuklear_d3d9.h"
+
+#endif // !NK_INCLUDE_ONCE
+
+
