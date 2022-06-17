@@ -22,3 +22,10 @@ inline std::add_lvalue_reference_t<__VA_ARGS__> name() noexcept \
 	static const std::uint32_t offset = netvars::data[hash::CompileTime(var)]; \
 	return *reinterpret_cast<std::add_pointer_t<__VA_ARGS__>>(std::uint32_t(this) + offset); \
 }
+
+#define NETVAR_OFFSET(funcname, class_name, var_name, offset, type) \
+[[nodiscard]] inline std::add_lvalue_reference_t<type> funcname() noexcept \
+{ \
+    constexpr auto hash = hash::CompileTime(class_name "->" var_name); \
+    return *reinterpret_cast<std::add_pointer_t<type>>(std::uintptr_t(this) + netvars::data[hash] + offset); \
+}

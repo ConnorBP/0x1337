@@ -7,12 +7,18 @@ void interfaces::Setup() noexcept {
 	entityList = Capture<IClientEntityList>("VClientEntityList003", "client.dll");
 	engine = Capture<IEngineClient>("VEngineClient014", "engine.dll");
 	trace = Capture<IEngineTraceClient>("EngineTraceClient004", "engine.dll");
+	sound = Capture<IEngineSound>("IEngineSoundClient003", "engine.dll");
+
 
 	client = Capture<IBaseClientDLL>("VClient018", "client.dll");
 	clientMode = **reinterpret_cast<void***>((*reinterpret_cast<unsigned int**>(client))[10] + 5);
 
-	materialSystem = Capture<IMaterialSystem>("materialsystem.dll", "VMaterialSystem080");
-	studioRender = Capture<IStudioRender>("studiorender.dll", "VStudioRender026");
+	input = *reinterpret_cast<Input**>((*reinterpret_cast<uintptr_t**>(client))[16] + 1);
+
+	materialSystem = Capture<IMaterialSystem>("VMaterialSystem080", "materialsystem.dll");
+	studioRender = Capture<IStudioRender>("VStudioRender026", "studiorender.dll");
+	//studioRender = Capture<IStudioRender>("studiorender.dll", "VStudioRender");
+	//modelRender = Capture<IModelRender>("")
 
 	// get the exported KeyValuesSystem function
 	if (const HINSTANCE handle = GetModuleHandle("vstdlib.dll"))

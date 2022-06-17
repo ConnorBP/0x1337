@@ -5,6 +5,7 @@
 #include "cclientclass.h"
 #include "cvector.h"
 #include "cmatrix.h"
+#include "WeaponData.h"
 
 class CEntity;
 class IClientUnknown
@@ -64,9 +65,39 @@ public:
 		FL_TRANSRAGDOLL = (1 << 30),
 		FL_UNBLOCKABLE_BY_PLAYER = (1 << 31)
 	};
+	enum class MoveType {
+		NOCLIP = 8,
+		LADDER = 9
+	};
+
+	enum EWeaponType : int
+	{
+		WEAPONTYPE_KNIFE = 0,
+		WEAPONTYPE_PISTOL = 1,
+		WEAPONTYPE_SUBMACHINEGUN = 2,
+		WEAPONTYPE_RIFLE = 3,
+		WEAPONTYPE_SHOTGUN = 4,
+		WEAPONTYPE_SNIPER = 5,
+		WEAPONTYPE_MACHINEGUN = 6,
+		WEAPONTYPE_C4 = 7,
+		WEAPONTYPE_PLACEHOLDER = 8,
+		WEAPONTYPE_GRENADE = 9,
+		WEAPONTYPE_HEALTHSHOT = 11,
+		WEAPONTYPE_FISTS = 12,
+		WEAPONTYPE_BREACHCHARGE = 13,
+		WEAPONTYPE_BUMPMINE = 14,
+		WEAPONTYPE_TABLET = 15,
+		WEAPONTYPE_MELEE = 16
+	};
 
 public: // netvars
-	NETVAR(GetFlags, "CBasePlayer->m_fFlags", std::int32_t);
+	NETVAR(GetFlags, "CBasePlayer->m_fFlags", std::int32_t)
+	NETVAR_OFFSET(GetMoveType, "CBaseEntity", "m_nRenderMode", 1, MoveType)
+	NETVAR(IsScoped, "CCSPlayer->m_bIsScoped", bool)
+	NETVAR(IsDefusing, "CCSPlayer->m_bIsDefusing", bool)
+	NETVAR(HasGunGameImmunity, "CCSPlayer->m_bGunGameImmunity", bool)
+	NETVAR(GetClip, "CBaseCombatWeapon->m_iClip1", int)
+
 
 public: // renderable virtual functions (+0x4)
 	constexpr CModel* GetModel() noexcept
@@ -126,6 +157,11 @@ public: // entity virtual functions
 		return memory::Call<bool>(this, 166);
 	}
 
+	constexpr CEntity* GetActiveWeapon() noexcept
+	{
+		return memory::Call<CEntity*>(this, 268);
+	}
+
 	constexpr CEntity* GetObserverTarget() noexcept
 	{
 		return memory::Call<CEntity*>(this, 295);
@@ -139,5 +175,24 @@ public: // entity virtual functions
 	constexpr void GetAimPunch(CVector& aimPunchOut) noexcept
 	{
 		memory::Call<void, CVector&>(this, 346, aimPunchOut);
+	}
+
+	constexpr float GetSpread() {
+		return memory::Call<float>(this, 453);
+	}
+
+	constexpr int GetWeaponType() noexcept
+	{
+		return memory::Call<int>(this, 455);
+	}
+
+	constexpr WeaponInfo* GetWeaponData() noexcept
+	{
+		return memory::Call<WeaponInfo*>(this, 461);
+	}
+
+	constexpr float GetInaccuracy() noexcept
+	{
+		return memory::Call<float>(this, 483);
 	}
 };

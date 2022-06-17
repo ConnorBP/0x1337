@@ -1,9 +1,33 @@
 #pragma once
+#include "checksum_crc.h"
 #include "cvector.h"
 
 class CUserCmd
 {
 public:
+    CRC32_t getChecksum() const noexcept
+    {
+        CRC32_t crc;
+        CRC32_Init(&crc);
+
+        CRC32_ProcessBuffer(&crc, &commandNumber, sizeof(commandNumber));
+        CRC32_ProcessBuffer(&crc, &tickCount, sizeof(tickCount));
+        CRC32_ProcessBuffer(&crc, &viewAngles, sizeof(viewAngles));
+        CRC32_ProcessBuffer(&crc, &aimDirection, sizeof(aimDirection));
+        CRC32_ProcessBuffer(&crc, &forwardMove, sizeof(forwardMove));
+        CRC32_ProcessBuffer(&crc, &sideMove, sizeof(sideMove));
+        CRC32_ProcessBuffer(&crc, &upMove, sizeof(upMove));
+        CRC32_ProcessBuffer(&crc, &buttons, sizeof(buttons));
+        CRC32_ProcessBuffer(&crc, &impulse, sizeof(impulse));
+        CRC32_ProcessBuffer(&crc, &weaponSelect, sizeof(weaponSelect));
+        CRC32_ProcessBuffer(&crc, &weaponSubType, sizeof(weaponSubType));
+        CRC32_ProcessBuffer(&crc, &randomSeed, sizeof(randomSeed));
+        CRC32_ProcessBuffer(&crc, &mouseDeltaX, sizeof(mouseDeltaX));
+        CRC32_ProcessBuffer(&crc, &mouseDeltaY, sizeof(mouseDeltaY));
+
+        CRC32_Final(&crc);
+        return crc;
+    }
     enum ECommandButton : std::int32_t
     {
         IN_ATTACK = (1 << 0),
@@ -52,4 +76,11 @@ public:
     bool hasBeenPredicted;
     CVector headAngles;
     CVector headOffset;
+};
+
+class VerifiedUserCmd
+{
+public:
+    CUserCmd cmd;
+    unsigned long crc;
 };

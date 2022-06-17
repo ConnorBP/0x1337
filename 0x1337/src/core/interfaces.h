@@ -7,6 +7,12 @@
 #include "../valve/ienginetraceclient.h"
 #include "../valve/imaterialsystem.h"
 #include "../valve/istudiorender.h"
+#include "../valve/input.h"
+#include "../valve/IEngineSound.hpp"
+
+//forward declaration
+
+//class Input;
 
 namespace interfaces
 {
@@ -23,8 +29,13 @@ namespace interfaces
 	inline IEngineTraceClient* trace = nullptr;
 	inline IBaseClientDLL* client = nullptr;
 	inline void* clientMode = nullptr;
+	inline Input* input;
 	inline IMaterialSystem* materialSystem = nullptr;
 	inline IStudioRender* studioRender = nullptr;
+	//inline IModelRender* modelRender = nullptr;
+
+	// for auto accept
+	inline IEngineSound* sound = nullptr;
 
 	// other
 	inline void* keyValuesSystem = nullptr;
