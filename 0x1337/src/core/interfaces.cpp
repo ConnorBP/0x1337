@@ -14,11 +14,14 @@ void interfaces::Setup() noexcept {
 	clientMode = **reinterpret_cast<void***>((*reinterpret_cast<unsigned int**>(client))[10] + 5);
 
 	input = *reinterpret_cast<Input**>((*reinterpret_cast<uintptr_t**>(client))[16] + 1);
+	inputSystem = Capture<i_inputsytem>("InputSystemVersion001", "inputsystem.dll");
 
 	materialSystem = Capture<IMaterialSystem>("VMaterialSystem080", "materialsystem.dll");
 	studioRender = Capture<IStudioRender>("VStudioRender026", "studiorender.dll");
 	//studioRender = Capture<IStudioRender>("studiorender.dll", "VStudioRender");
 	//modelRender = Capture<IModelRender>("")
+
+	surface = Capture<ISurface>("VGUI_Surface031", "vguimatsurface.dll");
 
 	// get the exported KeyValuesSystem function
 	if (const HINSTANCE handle = GetModuleHandle("vstdlib.dll"))

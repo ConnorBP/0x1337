@@ -8,7 +8,9 @@
 #include "../valve/imaterialsystem.h"
 #include "../valve/istudiorender.h"
 #include "../valve/input.h"
+#include "../valve/i_input_system.hpp"
 #include "../valve/IEngineSound.hpp"
+#include "../valve/isurface.h"
 
 //forward declaration
 
@@ -30,9 +32,11 @@ namespace interfaces
 	inline IBaseClientDLL* client = nullptr;
 	inline void* clientMode = nullptr;
 	inline Input* input;
+	inline i_inputsytem* inputSystem;
 	inline IMaterialSystem* materialSystem = nullptr;
 	inline IStudioRender* studioRender = nullptr;
 	//inline IModelRender* modelRender = nullptr;
+	inline ISurface* surface;
 
 	// for auto accept
 	inline IEngineSound* sound = nullptr;

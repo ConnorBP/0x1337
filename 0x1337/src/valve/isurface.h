@@ -42,4 +42,7 @@ public:
 	{
 		memory::Call<void>(this, 18, x, y, xx, yy);
 	}
+	constexpr void UnlockCursor() noexcept {
+		memory::Call<void>(this, 66);
+	}
 };

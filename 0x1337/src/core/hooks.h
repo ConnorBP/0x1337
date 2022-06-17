@@ -107,6 +107,10 @@ namespace hooks {
 
 	using ResetFn = HRESULT(__thiscall*)(void*, IDirect3DDevice9*, D3DPRESENT_PARAMETERS*) noexcept;
 	inline ResetFn ResetOriginal = nullptr;
-	
 
+	// for in game cursor locking
+	using LockCursorFn = void(__thiscall*)(void*) noexcept;
+	inline LockCursorFn LockCursorOriginal = nullptr;
+	void __stdcall hkLockCursor() noexcept;
+	
 }

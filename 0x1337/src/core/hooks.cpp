@@ -14,15 +14,7 @@
 
 #include "config.h"
 
-// forward declars to avoid circular dependancies
-namespace hooks {
-	long __stdcall EndScene(IDirect3DDevice9* device) noexcept;
-	HRESULT __stdcall Reset(IDirect3DDevice9* device, D3DPRESENT_PARAMETERS* params) noexcept;
-}
-
-namespace gui {
-	void DestroyDirectX() noexcept;
-}
+#include "gui.h"
 
 void hooks::Setup()
 {
@@ -97,6 +89,14 @@ void hooks::Setup()
 		reinterpret_cast<void**>(&EndSceneOriginal)
 	))
 		throw std::runtime_error("failed to create endscene hook");
+
+	//reset hook
+	if (MH_CreateHook(
+		memory::Get(interfaces::surface, 67),
+		&hkLockCursor,
+		reinterpret_cast<void**>(&LockCursorOriginal)
+	))
+		throw std::runtime_error("failed to create hkLockCursor hook");
 
 	if (MH_EnableHook(MH_ALL_HOOKS))
 		throw std::runtime_error("unable to enable hooks");
@@ -338,17 +338,24 @@ void __stdcall hooks::hkEmitSound1(IRecipientFilter& filter, int iEntIndex, int 
 
 			// This will flash the CSGO window on the taskbar
 			// so we know a game was found (you cant hear the beep sometimes cause it auto-accepts too fast)
-			//FLASHWINFO fi;
-			//fi.cbSize = sizeof(FLASHWINFO);
-			//fi.hwnd = InputSys::Get().GetMainWindow();
-			//fi.dwFlags = FLASHW_ALL | FLASHW_TIMERNOFG;
-			//fi.uCount = 0;
-			//fi.dwTimeout = 0;
-			//FlashWindowEx(&fi);
-			//log_console("Match Accepted", Color::Blue);
+			FLASHWINFO fi;
+			fi.cbSize = sizeof(FLASHWINFO);
+			fi.hwnd = gui::window;
+			fi.dwFlags = FLASHW_ALL | FLASHW_TIMERNOFG;
+			fi.uCount = 0;
+			fi.dwTimeout = 0;
+			FlashWindowEx(&fi);
+			log_console("Match Accepted", Color::Blue);
 		}
 	}
 
 	EmitSoundOriginal(interfaces::sound, filter, iEntIndex, iChannel, pSoundEntry, nSoundEntryHash, pSample, flVolume, nSeed, flAttenuation, iFlags, iPitch, pOrigin, pDirection, pUtlVecOrigins, bUpdatePositions, soundtime, speakerentity, unk);
 }
 
+void __stdcall hooks::hkLockCursor() noexcept
+{
+	if (globals::localPlayer && globals::localPlayer->IsAlive() && interfaces::engine->IsInGame())
+		interfaces::inputSystem->EnableInput(true);
+
+	gui::open ? interfaces::surface->UnlockCursor() : LockCursorOriginal(interfaces::surface);
+}

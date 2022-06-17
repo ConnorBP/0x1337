@@ -222,6 +222,7 @@
     <ClInclude Include="src\valve\ivengineclient.h" />
     <ClInclude Include="src\valve\ivmodelinfo.h" />
     <ClInclude Include="src\valve\ivpanel.h" />
+    <ClInclude Include="src\valve\i_input_system.hpp" />
     <ClInclude Include="src\valve\Pad.h" />
     <ClInclude Include="src\valve\Platform.h" />
     <ClInclude Include="src\valve\VirtualMethod.h" />

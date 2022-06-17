@@ -18,4 +18,7 @@ public:
 	{
 		memory::Call<void, const CVector&>(this, 19, viewAngles);
 	}
+	constexpr bool IsInGame() noexcept {
+		return memory::Call<bool>(this, 26);
+	}
 };
