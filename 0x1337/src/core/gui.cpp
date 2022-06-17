@@ -266,6 +266,10 @@ void gui::Render() noexcept{
 		nk_layout_row_dynamic(ctx, 20, 1);
 		nk_label(ctx, "chams:", NK_TEXT_LEFT);
 
+		nk_layout_row_dynamic(ctx, 30, 2);
+		nk_checkbox_label(ctx, "enemy", &config::chams.enableEnemy);
+		nk_checkbox_label(ctx, "ignore Z", &config::chams.enableEnemyZ);
+
 		nk_layout_row_dynamic(ctx, 25, 1);
 		if (nk_combo_begin_color(ctx, nk_rgb_cf(bg), nk_vec2(nk_widget_width(ctx), 400))) {
 			nk_layout_row_dynamic(ctx, 120, 1);

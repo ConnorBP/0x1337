@@ -305,19 +305,27 @@ void __stdcall hooks::DrawModel(
 			constexpr float visible[3] = { 0.529, 0.165, 0.529 };
 			constexpr float hidden[3] = {0.039, 0.514, 0.388};
 
-			interfaces::studioRender->SetAlphaModulation(0.8f);
 
-			// show through walls
-			wallMaterial->SetMaterialVarFlag(IMaterial::IGNOREZ, true);
-			interfaces::studioRender->SetColorModulation(hidden);
-			interfaces::studioRender->ForcedMaterialOverride(wallMaterial);
-			DrawModelOriginal(interfaces::studioRender, results, info, bones, flexWeights, flexDelayedWights, modelOrigin, flags);
+			if (config::chams.enableEnemyZ) {
+				// show through walls
+				wallMaterial->SetMaterialVarFlag(IMaterial::IGNOREZ, true);
+				interfaces::studioRender->SetColorModulation(hidden);
+				interfaces::studioRender->ForcedMaterialOverride(wallMaterial);
+				DrawModelOriginal(interfaces::studioRender, results, info, bones, flexWeights, flexDelayedWights, modelOrigin, flags);
+			}
 
-			// not through walls
-			material->SetMaterialVarFlag(IMaterial::IGNOREZ, false);
-			interfaces::studioRender->SetColorModulation(visible);
-			interfaces::studioRender->ForcedMaterialOverride(material);
-			DrawModelOriginal(interfaces::studioRender, results, info, bones, flexWeights, flexDelayedWights, modelOrigin, flags);
+			if (config::chams.enableEnemy) {
+				interfaces::studioRender->SetAlphaModulation(0.9f);
+				// not through walls
+				material->SetMaterialVarFlag(IMaterial::IGNOREZ, false);
+				interfaces::studioRender->SetColorModulation(visible);
+				interfaces::studioRender->ForcedMaterialOverride(material);
+				DrawModelOriginal(interfaces::studioRender, results, info, bones, flexWeights, flexDelayedWights, modelOrigin, flags);
+			}
+
+			if (!config::chams.enableEnemy && !config::chams.enableEnemyZ) {
+				DrawModelOriginal(interfaces::studioRender, results, info, bones, flexWeights, flexDelayedWights, modelOrigin, flags);
+			}
 
 			return interfaces::studioRender->ForcedMaterialOverride(nullptr);
 		}

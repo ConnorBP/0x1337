@@ -10,10 +10,10 @@ namespace config {
 		int enableAutoAccept = 1;
 	} misc;
 	inline struct Chams {
-		bool enableEnemy = true;
-		bool enableEnemyZ = true;
-		bool enableTeam = false;
-		bool enableTeamZ = false;
+		int enableEnemy = true;
+		int enableEnemyZ = true;
+		int enableTeam = false;
+		int enableTeamZ = false;
 		//constexpr float visible[3] = { 0.529, 0.165, 0.529 };
 		//constexpr float hidden[3] = { 0.039, 0.514, 0.388 };
 		fcolor4 enemyColor { 0.529f, 0.165f, 0.529f, 1.0};
