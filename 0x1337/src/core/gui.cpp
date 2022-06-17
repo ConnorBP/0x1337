@@ -234,10 +234,11 @@ void gui::Destroy() noexcept{
 void gui::Render() noexcept{
 
 	static struct nk_colorf bg { 0.10f, 0.18f, 0.24f, 0.6f };
-	static struct nk_color highlight {152,43,220,255};
+	static struct nk_colorf highlightf {1.0f,1.0f,1.0f,1.0f};
+	struct nk_color highlight = nk_rgb_cf(highlightf); //{152,43,220,255};
 
 	ctx->style.checkbox.cursor_hover = nk_style_item_color(nk_rgb(highlight.r, highlight.g, 169));
-	ctx->style.checkbox.cursor_normal = nk_style_item_color(nk_rgb(highlight.r, highlight.g, highlight.b));
+	ctx->style.checkbox.cursor_normal = nk_style_item_color(highlight);
 
 	/* Input */
 	MSG msg;
@@ -285,6 +286,22 @@ void gui::Render() noexcept{
 
 			config::chams.enemyColor = fcolor4 {bg.r,bg.g,bg.b,bg.a};
 
+			nk_combo_end(ctx);
+		}
+
+
+		// menu highlight color picker
+		nk_layout_row_dynamic(ctx, 20, 1);
+		nk_label(ctx, "menu highlight:", NK_TEXT_LEFT);
+		nk_layout_row_dynamic(ctx, 25, 1);
+		if (nk_combo_begin_color(ctx, nk_rgb_cf(highlightf), nk_vec2(nk_widget_width(ctx), 400))) {
+			nk_layout_row_dynamic(ctx, 120, 1);
+			highlightf = nk_color_picker(ctx, highlightf, NK_RGBA);
+			nk_layout_row_dynamic(ctx, 25, 1);
+			highlightf.r = nk_propertyf(ctx, "#R:", 0, highlightf.r, 1.0f, 0.01f, 0.005f);
+			highlightf.g = nk_propertyf(ctx, "#G:", 0, highlightf.g, 1.0f, 0.01f, 0.005f);
+			highlightf.b = nk_propertyf(ctx, "#B:", 0, highlightf.b, 1.0f, 0.01f, 0.005f);
+			highlightf.a = nk_propertyf(ctx, "#A:", 0, highlightf.a, 1.0f, 0.01f, 0.005f);
 			nk_combo_end(ctx);
 		}
 
