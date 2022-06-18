@@ -77,8 +77,8 @@ bool gui::SetupWindow(const char* windowName) noexcept{
 		WS_EX_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
-		1920,//window dimensions
-		1080,
+		0,//window dimensions
+		0,
 		NULL, //no parent
 		NULL, //no menu
 		windowClass.hInstance,
@@ -190,10 +190,13 @@ void gui::SetupMenu(LPDIRECT3DDEVICE9 device) noexcept{
 			SetWindowLongPtr(window, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(WindowProcess))
 		);
 
-	RECT rect = { 0, 0, 0, 0 };
-	GetWindowRect(window, &rect);
+	//RECT rect = { 0, 0, 0, 0 };
+	//GetWindowRect(window, &rect);
 
-	ctx = nk_d3d9_init(device, rect.left + rect.right, rect.top + rect.bottom);
+	D3DVIEWPORT9 viewport;
+	device->GetViewport(&viewport);
+
+	ctx = nk_d3d9_init(device, viewport.Width, viewport.Height);
 	/* Load Fonts: if none of these are loaded a default font will be used  */
 	/* Load Cursor: if you uncomment cursor loading please hide the cursor */
 	{struct nk_font_atlas* atlas;
@@ -243,7 +246,7 @@ void gui::Render() noexcept{
 
 	//////
 
-	if (nk_begin(ctx, "0x1337", nk_rect(50, 50, 275, 300),
+	if (nk_begin(ctx, "0x1337", nk_rect(50, 50, 300, 320),
 		NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE |
 		NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE | NK_WINDOW_CLOSABLE))
 	{
