@@ -246,7 +246,10 @@ void gui::Render() noexcept{
 
 	//////
 
-	if (nk_begin(ctx, "0x1337", nk_rect(50, 50, 300, 320),
+	if (nk_window_is_closed(ctx, "0x1337"))
+		gui::open = false;
+
+	if (nk_begin(ctx, "0x1337", nk_rect(50, 50, 300, 340),
 		NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE |
 		NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE | NK_WINDOW_CLOSABLE))
 	{
