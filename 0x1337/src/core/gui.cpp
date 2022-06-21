@@ -365,7 +365,9 @@ LRESULT CALLBACK WindowProcess(
 		gui::open = !gui::open;
 	}
 
-	// pass windproc messages to imgui if menu is open
+	interfaces::inputSystem->EnableInput(!gui::open);
+
+	// pass windproc messages to nuklear if menu is open
 	if (gui::open && nk_d3d9_handle_event(window, message, wideParam, longParam)) {
 		return 1L;
 	}

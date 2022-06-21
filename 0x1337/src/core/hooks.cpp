@@ -90,7 +90,7 @@ void hooks::Setup()
 	))
 		throw std::runtime_error("failed to create endscene hook");
 
-	//reset hook
+	////reset hook
 	if (MH_CreateHook(
 		memory::Get(interfaces::surface, 67),
 		&hkLockCursor,
@@ -362,8 +362,11 @@ void __stdcall hooks::hkEmitSound1(IRecipientFilter& filter, int iEntIndex, int 
 
 void __stdcall hooks::hkLockCursor() noexcept
 {
-	if (globals::localPlayer && globals::localPlayer->IsAlive() && interfaces::engine->IsInGame())
-		interfaces::inputSystem->EnableInput(true);
+	//if (globals::localPlayer && globals::localPlayer->IsAlive() && interfaces::engine->IsInGame()) //for whatever reason this crashes
+	//	interfaces::inputSystem->EnableInput(true); 
 
-	gui::open ? interfaces::surface->UnlockCursor() : LockCursorOriginal(interfaces::surface);
+	//gui::open ? interfaces::surface->UnlockCursor() : LockCursorOriginal(interfaces::surface);
+	if (gui::open)
+		return interfaces::surface->UnlockCursor();
+	return LockCursorOriginal(interfaces::surface);
 }

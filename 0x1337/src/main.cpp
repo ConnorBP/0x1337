@@ -44,6 +44,10 @@ DWORD WINAPI Setup(LPVOID instance)
 	while (!GetAsyncKeyState(VK_DELETE) && !globals::shouldUnload)
 		std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+	interfaces::inputSystem->EnableInput(true);
+
 	hooks::Destroy();
 	gui::Destroy();
 	FreeLibraryAndExitThread(static_cast<HMODULE>(instance), EXIT_SUCCESS);
