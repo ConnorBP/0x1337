@@ -1,9 +1,9 @@
 #pragma once
 #include <cstdint>
+#include "cusercmd.h"
 
-class IGlobalVars
+struct IGlobalVars
 {
-public:
 	float realTime;
 	std::int32_t frameCount;
 	float absFrameTime;
@@ -21,4 +21,6 @@ public:
 	bool remoteClient;
 	std::int32_t timestampNetworkingBase;
 	std::int32_t timestampRandomizeWindow;
+
+	float serverTime(CUserCmd* = nullptr) const noexcept;
 };

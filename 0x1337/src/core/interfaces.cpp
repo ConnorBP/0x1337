@@ -11,6 +11,7 @@ void interfaces::Setup() noexcept {
 
 
 	client = Capture<IBaseClientDLL>("VClient018", "client.dll");
+	globals = **reinterpret_cast<IGlobalVars***>((*reinterpret_cast<uintptr_t**>(client))[11] + 10);
 	clientMode = **reinterpret_cast<void***>((*reinterpret_cast<unsigned int**>(client))[10] + 5);
 
 	input = *reinterpret_cast<Input**>((*reinterpret_cast<uintptr_t**>(client))[16] + 1);

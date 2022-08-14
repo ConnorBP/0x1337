@@ -92,11 +92,14 @@ public:
 
 public: // netvars
 	NETVAR(GetFlags, "CBasePlayer->m_fFlags", std::int32_t)
+	NETVAR(tickBase, "CBasePlayer->m_nTickBase", std::int32_t)
 	NETVAR_OFFSET(GetMoveType, "CBaseEntity", "m_nRenderMode", 1, MoveType)
 	NETVAR(IsScoped, "CCSPlayer->m_bIsScoped", bool)
 	NETVAR(IsDefusing, "CCSPlayer->m_bIsDefusing", bool)
 	NETVAR(HasGunGameImmunity, "CCSPlayer->m_bGunGameImmunity", bool)
 	NETVAR(GetClip, "CBaseCombatWeapon->m_iClip1", int)
+	NETVAR(itemDefinitionIndex, "CBaseAttributableItem->m_iItemDefinitionIndex", short)
+	NETVAR(itemDefinitionIndex2, "CBaseAttributableItem->m_iItemDefinitionIndex", WeaponId)
 
 
 public: // renderable virtual functions (+0x4)

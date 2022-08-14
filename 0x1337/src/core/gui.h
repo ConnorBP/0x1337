@@ -51,6 +51,7 @@ namespace gui
 	void Destroy() noexcept;
 
 	void Render() noexcept;
+	void RenderSpectatorList() noexcept;
 }
 
 namespace hooks {

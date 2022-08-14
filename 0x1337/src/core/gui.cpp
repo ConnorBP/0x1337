@@ -22,6 +22,7 @@
 #include "hooks.h"
 #include "config.h"
 #include "../util/Logging.h"
+#include "features/Misc.h"
 
 //imgui window process
 //extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(
@@ -237,7 +238,11 @@ void gui::Destroy() noexcept{
 
 void gui::Render() noexcept{
 
-	static struct nk_colorf bg { 0.10f, 0.18f, 0.24f, 0.6f };
+	static char new_msg[64];
+	static int new_msg_len;
+
+	static struct nk_colorf enemyChams { 0.10f, 0.18f, 0.24f, 0.6f };
+	static struct nk_colorf enemyChamsZ { 0.10f, 0.18f, 0.24f, 0.6f };
 	static struct nk_colorf highlightf {1.0f,1.0f,1.0f,1.0f};
 	struct nk_color highlight = nk_rgb_cf(highlightf); //{152,43,220,255};
 
@@ -249,7 +254,7 @@ void gui::Render() noexcept{
 	if (nk_window_is_closed(ctx, "0x1337"))
 		gui::open = false;
 
-	if (nk_begin(ctx, "0x1337", nk_rect(50, 50, 300, 340),
+	if (nk_begin(ctx, "0x1337", nk_rect(50, 50, 300, 360),
 		NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE |
 		NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE | NK_WINDOW_CLOSABLE))
 	{
@@ -269,6 +274,14 @@ void gui::Render() noexcept{
 		nk_checkbox_label(ctx, "bhop", &config::misc.enableBhop);
 		nk_checkbox_label(ctx, "auto accept", &config::misc.enableAutoAccept);
 
+		nk_layout_row_dynamic(ctx, 30, 2);
+		nk_checkbox_label(ctx, "gay spam", &config::misc.enableGaySpam);
+		nk_checkbox_label(ctx, "auto revolver", &config::misc.enableAutoRevolver);
+		if (config::misc.enableGaySpam) {
+			nk_layout_row_dynamic(ctx, 22, 1);
+			nk_property_int(ctx, "Spam Delay (Seconds):", 1, &config::misc.gaySpamDelay, 420, 1, 1);
+		}
+
 		nk_layout_row_dynamic(ctx, 20, 1);
 		nk_label(ctx, "chams:", NK_TEXT_LEFT);
 
@@ -276,17 +289,28 @@ void gui::Render() noexcept{
 		nk_checkbox_label(ctx, "enemy", &config::chams.enableEnemy);
 		nk_checkbox_label(ctx, "ignore Z", &config::chams.enableEnemyZ);
 
-		nk_layout_row_dynamic(ctx, 25, 1);
-		if (nk_combo_begin_color(ctx, nk_rgb_cf(bg), nk_vec2(nk_widget_width(ctx), 400))) {
-			nk_layout_row_dynamic(ctx, 120, 1);
-			bg = nk_color_picker(ctx, bg, NK_RGBA);
-			nk_layout_row_dynamic(ctx, 25, 1);
-			bg.r = nk_propertyf(ctx, "#R:", 0, bg.r, 1.0f, 0.01f, 0.005f);
-			bg.g = nk_propertyf(ctx, "#G:", 0, bg.g, 1.0f, 0.01f, 0.005f);
-			bg.b = nk_propertyf(ctx, "#B:", 0, bg.b, 1.0f, 0.01f, 0.005f);
-			bg.a = nk_propertyf(ctx, "#A:", 0, bg.a, 1.0f, 0.01f, 0.005f);
+		nk_layout_row_dynamic(ctx, 30, 2);
+		//nk_label(ctx, "yeet:", NK_TEXT_RIGHT);
+		nk_edit_string(ctx, NK_EDIT_FIELD, new_msg, &new_msg_len, 64, nk_filter_ascii);
+		if (nk_button_label(ctx, "add msg")) {
+			if (strlen(new_msg) > 0) {
+				Misc::messages.push_back(std::string(new_msg));
+				new_msg[0] = '\0';
+				new_msg_len = 0;
+			}
+		}
 
-			config::chams.enemyColor = fcolor4 {bg.r,bg.g,bg.b,bg.a};
+		nk_layout_row_dynamic(ctx, 25, 1);
+		if (nk_combo_begin_color(ctx, nk_rgb_cf(enemyChams), nk_vec2(nk_widget_width(ctx), 400))) {
+			nk_layout_row_dynamic(ctx, 120, 1);
+			enemyChams = nk_color_picker(ctx, enemyChams, NK_RGBA);
+			nk_layout_row_dynamic(ctx, 25, 1);
+			enemyChams.r = nk_propertyf(ctx, "#R:", 0, enemyChams.r, 1.0f, 0.01f, 0.005f);
+			enemyChams.g = nk_propertyf(ctx, "#G:", 0, enemyChams.g, 1.0f, 0.01f, 0.005f);
+			enemyChams.b = nk_propertyf(ctx, "#B:", 0, enemyChams.b, 1.0f, 0.01f, 0.005f);
+			enemyChams.a = nk_propertyf(ctx, "#A:", 0, enemyChams.a, 1.0f, 0.01f, 0.005f);
+
+			config::chams.enemyColor = fcolor4 { enemyChams.r,enemyChams.g,enemyChams.b,enemyChams.a};
 
 			nk_combo_end(ctx);
 		}
@@ -317,29 +341,9 @@ void gui::Render() noexcept{
 	/* Draw */
 	{
 		HRESULT hr;
-		//hr = IDirect3DDevice9_Clear(device, 0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER | D3DCLEAR_STENCIL,
-		//	D3DCOLOR_COLORVALUE(bg.r, bg.g, bg.b, bg.a), 0.0f, 0);
-		//NK_ASSERT(SUCCEEDED(hr));
-
-		//hr = IDirect3DDevice9_BeginScene(device);
-		//NK_ASSERT(SUCCEEDED(hr));
 		nk_d3d9_render(NK_ANTI_ALIASING_ON);
-		//hr = IDirect3DDevice9_EndScene(device);
-		//NK_ASSERT(SUCCEEDED(hr));
-
-		
-		//hr = IDirect3DDevice9_Present(device, NULL, NULL, NULL, NULL);
-		//if (hr == D3DERR_DEVICELOST || hr == D3DERR_DEVICEHUNG || hr == D3DERR_DEVICEREMOVED) {
-		//	/* to recover from this, you'll need to recreate device and all the resources */
-		//	MessageBoxW(NULL, L"D3D9 device is lost or removed!", L"Error", 0);
-		//	//break;
-		//}
-		//else if (hr == S_PRESENT_OCCLUDED) {
-		//	/* window is not visible, so vsync won't work. Let's sleep a bit to reduce CPU usage */
-		//	Sleep(10);
-		//}
-		//NK_ASSERT(SUCCEEDED(hr));
 	}
+
 	/* Input */
 	MSG msg;
 	nk_input_begin(ctx);
@@ -350,6 +354,17 @@ void gui::Render() noexcept{
 		DispatchMessageW(&msg);
 	}
 	nk_input_end(ctx);
+
+}
+
+void gui::RenderSpectatorList() noexcept {
+	/*if (nk_begin(ctx, "spectators", nk_rect(30, 100, 300, 400),
+		NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE |
+		NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE | NK_WINDOW_CLOSABLE))
+	{
+
+	}
+	nk_end(ctx);*/
 }
 
 LRESULT CALLBACK WindowProcess(
@@ -363,6 +378,8 @@ LRESULT CALLBACK WindowProcess(
 	// (&1 makes it only detect the click once, and not multiple times when held)
 	if (GetAsyncKeyState(VK_INSERT) & 1) {
 		gui::open = !gui::open;
+		if (!gui::open)
+			interfaces::inputSystem->reset_input_state();
 	}
 
 	interfaces::inputSystem->EnableInput(!gui::open);
@@ -399,6 +416,9 @@ long __stdcall hooks::EndScene(IDirect3DDevice9* device) noexcept {
 
 	if (gui::open)
 		gui::Render();
+
+	if (config::misc.enableSpectatorList)
+		gui::RenderSpectatorList();
 
 	return hr;
 }

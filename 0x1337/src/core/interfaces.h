@@ -11,6 +11,7 @@
 #include "../valve/i_input_system.hpp"
 #include "../valve/IEngineSound.hpp"
 #include "../valve/isurface.h"
+#include "../valve/iglobalvars.h"
 
 //forward declaration
 
@@ -29,6 +30,7 @@ namespace interfaces
 	inline IClientEntityList* entityList = nullptr;
 	inline IEngineClient* engine = nullptr;
 	inline IEngineTraceClient* trace = nullptr;
+	inline IGlobalVars* globals = nullptr;
 	inline IBaseClientDLL* client = nullptr;
 	inline void* clientMode = nullptr;
 	inline Input* input;

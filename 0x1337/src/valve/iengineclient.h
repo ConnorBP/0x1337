@@ -3,6 +3,7 @@
 
 #include "cvector.h"
 #include "cusercmd.h"
+#include "NetworkChannel.h"
 
 class IEngineClient
 {
@@ -20,5 +21,19 @@ public:
 	}
 	constexpr bool IsInGame() noexcept {
 		return memory::Call<bool>(this, 26);
+	}
+
+	//VIRTUAL_METHOD(bool, isConnected, 27, (), (this))
+
+	//VIRTUAL_METHOD(const char*, getLevelName, 53, (), (this))
+
+	//VIRTUAL_METHOD(NetworkChannel*, getNetworkChannel, 78, (), (this))
+
+	constexpr NetworkChannel* getNetworkChannel() noexcept {
+		return memory::Call<NetworkChannel*>(this, 78);
+	}
+
+	constexpr void clientCmdUnrestricted(const char* cmd, bool fromConsoleOrKeybind = false) noexcept {
+		return memory::Call<void>(this, 114, cmd, fromConsoleOrKeybind);
 	}
 };

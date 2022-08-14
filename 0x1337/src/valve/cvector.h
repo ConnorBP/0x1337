@@ -28,6 +28,16 @@ public:
 		return { x * scale, y * scale, z * scale };
 	}
 
+	constexpr CVector operator/(const CVector& other) const noexcept
+	{
+		return { x / other.x, y / other.y, z / other.z };
+	}
+
+	constexpr CVector Scale(float factor) const noexcept
+	{
+		return { x * factor, y * factor, z * factor };
+	}
+
 	// convert angles -> vector
 	CVector AngleToVector() const noexcept
 	{
@@ -41,4 +51,15 @@ public:
 public:
 
 	float x{ }, y{ }, z{ };
+};
+
+__declspec(align(16)) class CVectorAligned : public CVector
+{
+public:
+	constexpr CVectorAligned operator-(const CVectorAligned& other) const noexcept
+	{
+		return { x - other.x, y - other.y, z - other.z, w - other.w };
+	}
+
+	float w{ };
 };

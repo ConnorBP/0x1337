@@ -8,6 +8,10 @@ namespace config {
 	inline struct Misc {
 		int enableBhop = 1;
 		int enableAutoAccept = 1;
+		int enableAutoRevolver = 0;
+		int enableSpectatorList = 1;
+		int enableGaySpam = 1;
+		int gaySpamDelay = 45;
 	} misc;
 	inline struct Chams {
 		int enableEnemy = true;

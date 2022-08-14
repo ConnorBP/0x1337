@@ -178,10 +178,17 @@ bool __stdcall hooks::CreateMove(float frameTime, CUserCmd* cmd, bool& sendPacke
 	//// get local player
 	globals::localPlayer = interfaces::entityList->GetEntityFromIndex(interfaces::engine->GetLocalPlayerIndex());
 
+	if (globals::localPlayer && interfaces::engine->IsInGame())
+		Misc::gayMessages();
+
 	if (globals::localPlayer && globals::localPlayer->IsAlive()) {
 
+		interfaces::globals->serverTime(cmd);
+
 		Misc::bunnyHop(cmd);
+
 		if (GetAsyncKeyState(VK_XBUTTON2)) {
+			Misc::prepareRevolver(cmd);
 			if (config::legitBot.triggerType == TRIG_HITC) {
 				Trigger::hitChanceTrigger(cmd);
 			}
@@ -189,7 +196,7 @@ bool __stdcall hooks::CreateMove(float frameTime, CUserCmd* cmd, bool& sendPacke
 				Trigger::runTrigger(cmd);
 			}
 		}
-		LegitBot::RunAimbot(cmd);
+		//LegitBot::RunAimbot(cmd);
 
 	}
 
@@ -278,6 +285,7 @@ void __stdcall hooks::DrawModel(
 	const CVector& modelOrigin,
 	const std::int32_t flags
 ) noexcept {
+	globals::localPlayer = interfaces::entityList->GetEntityFromIndex(interfaces::engine->GetLocalPlayerIndex());
 	// make sure local player and renderable pointer are not null
 	if (globals::localPlayer && info.renderable) {
 		CEntity* entity = info.renderable->GetIClientUnknown()->GetBaseEntity();
@@ -302,11 +310,14 @@ void __stdcall hooks::DrawModel(
 			static IMaterial* material = interfaces::materialSystem->FindMaterial("debug/debugambientcube");
 			static IMaterial* wallMaterial = interfaces::materialSystem->FindMaterial("models/inventory_items/cologne_prediction/cologne_prediction_glass");
 
-			constexpr float visible[3] = { 0.529, 0.165, 0.529 };
-			constexpr float hidden[3] = {0.039, 0.514, 0.388};
+			/*float visible[3] = { 0.529, 0.165, 0.529 };
+			float hidden[3] = {0.039, 0.514, 0.388};*/
+			float visible[3] = { config::chams.enemyColor.r, config::chams.enemyColor.g, config::chams.enemyColor.b };
+			float hidden[3] = { config::chams.enemyColorZ.r,config::chams.enemyColorZ.g, config::chams.enemyColorZ.b };
 
 
 			if (config::chams.enableEnemyZ) {
+				interfaces::studioRender->SetAlphaModulation(config::chams.enemyColorZ.a);
 				// show through walls
 				wallMaterial->SetMaterialVarFlag(IMaterial::IGNOREZ, true);
 				interfaces::studioRender->SetColorModulation(hidden);
@@ -315,7 +326,7 @@ void __stdcall hooks::DrawModel(
 			}
 
 			if (config::chams.enableEnemy) {
-				interfaces::studioRender->SetAlphaModulation(0.9f);
+				interfaces::studioRender->SetAlphaModulation(config::chams.enemyColor.a);
 				// not through walls
 				material->SetMaterialVarFlag(IMaterial::IGNOREZ, false);
 				interfaces::studioRender->SetColorModulation(visible);
