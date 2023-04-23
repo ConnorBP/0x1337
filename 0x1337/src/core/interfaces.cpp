@@ -3,31 +3,11 @@
 #define WIN32_LEAD_AND_MEAN
 #include <Windows.h>
 
+#include "../util/xorstr.hpp"
+
 void interfaces::Setup() noexcept {
-	entityList = Capture<IClientEntityList>("VClientEntityList003", "client.dll");
-	engine = Capture<IEngineClient>("VEngineClient014", "engine.dll");
-	trace = Capture<IEngineTraceClient>("EngineTraceClient004", "engine.dll");
-	sound = Capture<IEngineSound>("IEngineSoundClient003", "engine.dll");
-
-
-	client = Capture<IBaseClientDLL>("VClient018", "client.dll");
-	globals = **reinterpret_cast<IGlobalVars***>((*reinterpret_cast<uintptr_t**>(client))[11] + 10);
-	clientMode = **reinterpret_cast<void***>((*reinterpret_cast<unsigned int**>(client))[10] + 5);
-
-	input = *reinterpret_cast<Input**>((*reinterpret_cast<uintptr_t**>(client))[16] + 1);
-	inputSystem = Capture<i_inputsytem>("InputSystemVersion001", "inputsystem.dll");
-
-	materialSystem = Capture<IMaterialSystem>("VMaterialSystem080", "materialsystem.dll");
-	studioRender = Capture<IStudioRender>("VStudioRender026", "studiorender.dll");
-	//studioRender = Capture<IStudioRender>("studiorender.dll", "VStudioRender");
-	//modelRender = Capture<IModelRender>("")
-
-	surface = Capture<ISurface>("VGUI_Surface031", "vguimatsurface.dll");
-
-	// get the exported KeyValuesSystem function
-	if (const HINSTANCE handle = GetModuleHandle("vstdlib.dll"))
-		// set our pointer by calling the function
-		keyValuesSystem = reinterpret_cast<void* (__cdecl*)()>(GetProcAddress(handle, "KeyValuesSystem"))();
+	inputSystem = Capture<i_inputsytem>(xorstr_("InputSystemVersion001"), xorstr_("inputsystem.dll"));
+	surface = Capture<ISurface>(xorstr_("VGUI_Surface031"), xorstr_("vguimatsurface.dll"));
 }
 
 template <typename T>
@@ -39,7 +19,7 @@ T* interfaces::Capture(const char* name, const char* lib) noexcept
 		return nullptr;
 
 	using Function = T * (*)(const char*, int*);
-	Function CreateInterface = reinterpret_cast<Function>(GetProcAddress(handle, "CreateInterface"));
+	Function CreateInterface = reinterpret_cast<Function>(GetProcAddress(handle, xorstr_("CreateInterface")));
 
 	return CreateInterface(name, nullptr);
 }

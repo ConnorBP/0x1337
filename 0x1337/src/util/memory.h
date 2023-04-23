@@ -2,8 +2,6 @@
 #include <cstdint>
 #include <functional>
 
-#include "x86RetSpoof.h"
-
 namespace memory
 {
 	// call once to scan for all patterns
@@ -29,24 +27,4 @@ namespace memory
 
 	// simple Pattern/AOB/Signature scanner
 	std::uint8_t* PatternScan(const char* moduleName, const char* pattern) noexcept;
-
-	// return addresses
-	inline std::uint8_t* allocKeyValuesClient = nullptr;
-	inline std::uint8_t* allocKeyValuesEngine = nullptr;
-	inline std::uint8_t* insertIntoTree = nullptr;
-
-	inline std::uint8_t* clientReturnCheck = nullptr;
-	inline std::uint8_t* engineReturnCheck = nullptr;
-	inline std::uint8_t* studiorenderReturnCheck = nullptr;
-	inline std::uint8_t* materialsystemReturnCheck = nullptr;
-
-	// x86RetSpoof gadget addresses
-	inline std::uint8_t* clientGadgetAddress = nullptr;
-
-	// functions
-	inline std::uint8_t* keyValuesFromString = nullptr;
-
-	// interfaces
-	inline std::uint8_t* glowManager = nullptr;
-
 }

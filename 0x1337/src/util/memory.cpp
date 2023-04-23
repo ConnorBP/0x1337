@@ -6,34 +6,7 @@
 
 void memory::Setup() noexcept
 {
-    allocKeyValuesClient = PatternScan("client.dll", "FF 52 04 85 C0 74 0C 56") + 3;
-    allocKeyValuesEngine = PatternScan("engine.dll", "FF 52 04 85 C0 74 0C 56") + 3;
-    insertIntoTree = PatternScan("client.dll", "56 52 FF 50 18") + 5;
-
-    keyValuesFromString = PatternScan("client.dll", "E8 ? ? ? ? 8B 0D ? ? ? ? 83 C4 04 8B F8 8B 11") + 1;
-
-    glowManager = PatternScan("client.dll", "0F 11 05 ? ? ? ? 83 C8 01") + 3;
-
-    /*
-    return address check bypass
-    https://www.unknowncheats.me/forum/counterstrike-global-offensive/500729-trouble-hooking-createmove.html
-        "client.dll", "55 8B EC 83 E4 F8 83 EC 34 56 C7"
-        "engine.dll", "55 8B EC 56 8B F1 33 C0 57"
-        "studiorender.dll", "55 8B EC 56 8B F1 33"
-        "materialsystem.dll", "55 8B EC 56 8B F1 33 C0"
-        Code:
-        bool __fastcall verify_return_address_hook(void* ecx, void* edx, const char* module_name)
-        {
-            return true;
-        }
-    */
-    clientReturnCheck = PatternScan("client.dll", "55 8B EC 83 E4 F8 83 EC 34 56 C7");
-    engineReturnCheck = PatternScan("engine.dll", "55 8B EC 56 8B F1 33 C0 57");
-    studiorenderReturnCheck = PatternScan("studiorender.dll", "55 8B EC 56 8B F1 33");
-    materialsystemReturnCheck = PatternScan("materialsystem.dll", "55 8B EC 56 8B F1 33 C0");
-
-    clientGadgetAddress = PatternScan("client.dll", "FF 23 E8 ? ? ? ?");
-
+    // scan for sigs here
 }
 
 std::uint8_t* memory::PatternScan(const char* moduleName, const char* pattern) noexcept

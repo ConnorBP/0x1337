@@ -21,8 +21,10 @@
 
 #include "hooks.h"
 #include "config.h"
-#include "../util/Logging.h"
-#include "features/Misc.h"
+#include "drawboxes.h"
+#include "draw.h"
+
+#include "../util/xorstr.hpp"
 
 //imgui window process
 //extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(
@@ -63,6 +65,8 @@ bool gui::SetupWindowClass(const char* windowClassName) noexcept
 		return true;
 	}
 }
+
+
 void gui::DestroyWindowClass() noexcept{
 	// free up the window class when we don't need it anymore
 	UnregisterClass(
@@ -161,15 +165,15 @@ void gui::DestroyDirectX() noexcept{
 
 // setup device
 void gui::Setup(){
-	if (!SetupWindowClass("0x1337Class")) {
-		throw std::runtime_error("Failed to create window class.");
+	if (!SetupWindowClass("GameRecordClass")) {
+		throw std::runtime_error("Failed to create GameRecord Window Class.");
 	}
 
-	if (!SetupWindow("0x1337Window")) {
+	if (!SetupWindow("GameRecordWindow")) {
 		throw std::runtime_error("Failed to create window.");
 	}
 	if (!SetupDirectX()) {
-		throw std::runtime_error("Failed to create device.");
+		throw std::runtime_error("Failed to create DirectX Device.");
 	}
 
 	// destroy our temporary window
@@ -198,6 +202,7 @@ void gui::SetupMenu(LPDIRECT3DDEVICE9 device) noexcept{
 	device->GetViewport(&viewport);
 
 	ctx = nk_d3d9_init(device, viewport.Width, viewport.Height);
+	Draw::Reset(viewport.Width, viewport.Height);
 	/* Load Fonts: if none of these are loaded a default font will be used  */
 	/* Load Cursor: if you uncomment cursor loading please hide the cursor */
 	{struct nk_font_atlas* atlas;
@@ -241,85 +246,112 @@ void gui::Render() noexcept{
 	static char new_msg[64];
 	static int new_msg_len;
 
-	static struct nk_colorf enemyChams { 0.10f, 0.18f, 0.24f, 0.6f };
-	static struct nk_colorf enemyChamsZ { 0.10f, 0.18f, 0.24f, 0.6f };
-	static struct nk_colorf highlightf {1.0f,1.0f,1.0f,1.0f};
-	struct nk_color highlight = nk_rgb_cf(highlightf); //{152,43,220,255};
+	static struct nk_colorf enemyBox { 0.75f, 0.26f, 0.0f, 0.99f };
+	static struct nk_colorf enemyBoxZ { 0.10f, 0.18f, 0.24f, 0.6f };
+	static struct nk_colorf enemyName { 0.92f, 0.71f, 0.22f, 0.6f };
 
-	ctx->style.checkbox.cursor_hover = nk_style_item_color(nk_rgb(highlight.r, highlight.g, 169));
+	static struct nk_colorf highlightf {0.34f,0.59f,0.53f,0.71f};
+	struct nk_color highlight = nk_rgb_cf(highlightf); //{152,43,220,255};
+	static struct nk_colorf highlighthf { 0.53f, 0.74f, 0.89f, 1.0f };
+	struct nk_color highlighth = nk_rgb_cf(highlighthf); //{152,43,220,255};
+
+	ctx->style.checkbox.cursor_hover = nk_style_item_color(highlighth);
 	ctx->style.checkbox.cursor_normal = nk_style_item_color(highlight);
 
 	//////
 
-	if (nk_window_is_closed(ctx, "0x1337"))
+	if (nk_window_is_closed(ctx, "GameRecord"))
 		gui::open = false;
 
-	if (nk_begin(ctx, "0x1337", nk_rect(50, 50, 300, 360),
+	if (nk_begin(ctx, "GameRecord", nk_rect(50, 50, 300, 280),
 		NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE |
 		NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE | NK_WINDOW_CLOSABLE))
 	{
-		nk_layout_row_dynamic(ctx, 30, 3);
-		nk_label(ctx, "trigger:", NK_TEXT_LEFT);
-		if (nk_option_label(ctx, "hitchance", config::legitBot.triggerType == TRIG_HITC)) config::legitBot.triggerType = TRIG_HITC;
-		if (nk_option_label(ctx, "fast", config::legitBot.triggerType == TRIG_FAST)) config::legitBot.triggerType = TRIG_FAST;
-		if (config::legitBot.triggerType == TRIG_HITC) {
-			nk_layout_row_dynamic(ctx, 22, 1);
-			nk_property_int(ctx, "Hitchance:", 0, &config::legitBot.triggerHitChance, 100, 1, 1);
-		}
+		//nk_layout_row_dynamic(ctx, 30, 3);
+		//nk_label(ctx, "trigger:", NK_TEXT_LEFT);
+		//if (nk_option_label(ctx, "hitchance", config::legitBot.triggerType == TRIG_HITC)) config::legitBot.triggerType = TRIG_HITC;
+		//if (nk_option_label(ctx, "fast", config::legitBot.triggerType == TRIG_FAST)) config::legitBot.triggerType = TRIG_FAST;
+		//if (config::legitBot.triggerType == TRIG_HITC) {
+		//	nk_layout_row_dynamic(ctx, 22, 1);
+		//	nk_property_int(ctx, "Hitchance:", 0, &config::legitBot.triggerHitChance, 100, 1, 1);
+		//}
 
-		nk_layout_row_dynamic(ctx, 20, 1);
-		nk_label(ctx, "misc:", NK_TEXT_LEFT);
+		//nk_layout_row_dynamic(ctx, 20, 1);
+		//nk_label(ctx, xorstr_("misc:"), NK_TEXT_LEFT);
 
-		nk_layout_row_dynamic(ctx, 30, 2);
-		nk_checkbox_label(ctx, "bhop", &config::misc.enableBhop);
-		nk_checkbox_label(ctx, "auto accept", &config::misc.enableAutoAccept);
+		//nk_layout_row_dynamic(ctx, 30, 2);
+		//nk_checkbox_label(ctx, "bhop", &config::misc.enableBhop);
+		//nk_checkbox_label(ctx, "auto accept", &config::misc.enableAutoAccept);
 
-		nk_layout_row_dynamic(ctx, 30, 2);
-		nk_checkbox_label(ctx, "gay spam", &config::misc.enableGaySpam);
-		nk_checkbox_label(ctx, "auto revolver", &config::misc.enableAutoRevolver);
-		if (config::misc.enableGaySpam) {
-			nk_layout_row_dynamic(ctx, 22, 1);
-			nk_property_int(ctx, "Spam Delay (Seconds):", 1, &config::misc.gaySpamDelay, 420, 1, 1);
-		}
+		//nk_layout_row_dynamic(ctx, 30, 1);
+		//nk_checkbox_label(ctx, "gay spam", &config::misc.enableGaySpam);
 
-		nk_layout_row_dynamic(ctx, 20, 1);
-		nk_label(ctx, "chams:", NK_TEXT_LEFT);
+		//if (config::misc.enableGaySpam) {
+		//	nk_layout_row_dynamic(ctx, 22, 1);
+		//	nk_property_int(ctx, "Spam Delay (Seconds):", 1, &config::misc.gaySpamDelay, 420, 1, 1);
+		//}
 
-		nk_layout_row_dynamic(ctx, 30, 2);
-		nk_checkbox_label(ctx, "enemy", &config::chams.enableEnemy);
-		nk_checkbox_label(ctx, "ignore Z", &config::chams.enableEnemyZ);
+		nk_layout_row_dynamic(ctx, 30, 1);
+		char res_strbuf[32] = "";
+		std::snprintf(res_strbuf, 32, "Resolution: %ux%u", box::box_draw_command_buffer.screen_width, box::box_draw_command_buffer.screen_height);
+		nk_label(ctx, res_strbuf, NK_TEXT_CENTERED);
 
 		nk_layout_row_dynamic(ctx, 30, 2);
-		//nk_label(ctx, "yeet:", NK_TEXT_RIGHT);
-		nk_edit_string(ctx, NK_EDIT_FIELD, new_msg, &new_msg_len, 64, nk_filter_ascii);
-		if (nk_button_label(ctx, "add msg")) {
-			if (strlen(new_msg) > 0) {
-				Misc::messages.push_back(std::string(new_msg));
-				new_msg[0] = '\0';
-				new_msg_len = 0;
+		nk_label(ctx, xorstr_("Debug Box:"), NK_TEXT_LEFT);
+		nk_checkbox_label(ctx, xorstr_("enabled"), &config::drawboxes.enabled);
+
+		if (config::drawboxes.enabled) {
+			nk_layout_row_dynamic(ctx, 30, 2);
+			nk_checkbox_label(ctx, xorstr_("debug"), &config::drawboxes.enableDebug);
+			if (nk_combo_begin_color(ctx, nk_rgb_cf(enemyBox), nk_vec2(nk_widget_width(ctx), 400))) {
+				nk_layout_row_dynamic(ctx, 120, 1);
+				enemyBox = nk_color_picker(ctx, enemyBox, NK_RGBA);
+				nk_layout_row_dynamic(ctx, 25, 1);
+				enemyBox.r = nk_propertyf(ctx, "#R:", 0, enemyBox.r, 1.0f, 0.01f, 0.005f);
+				enemyBox.g = nk_propertyf(ctx, "#G:", 0, enemyBox.g, 1.0f, 0.01f, 0.005f);
+				enemyBox.b = nk_propertyf(ctx, "#B:", 0, enemyBox.b, 1.0f, 0.01f, 0.005f);
+				enemyBox.a = nk_propertyf(ctx, "#A:", 0, enemyBox.a, 1.0f, 0.01f, 0.005f);
+
+				config::drawboxes.enemyColor = fcolor4{ enemyBox.r,enemyBox.g,enemyBox.b,enemyBox.a };
+
+				nk_combo_end(ctx);
+			}
+			nk_layout_row_dynamic(ctx, 30, 2);
+			nk_checkbox_label(ctx, xorstr_("dbgtext"), &config::drawboxes.drawNames);
+			if (nk_combo_begin_color(ctx, nk_rgb_cf(enemyName), nk_vec2(nk_widget_width(ctx), 400))) {
+				nk_layout_row_dynamic(ctx, 120, 1);
+				enemyName = nk_color_picker(ctx, enemyName, NK_RGBA);
+				nk_layout_row_dynamic(ctx, 25, 1);
+				enemyName.r = nk_propertyf(ctx, "#R:", 0, enemyName.r, 1.0f, 0.01f, 0.005f);
+				enemyName.g = nk_propertyf(ctx, "#G:", 0, enemyName.g, 1.0f, 0.01f, 0.005f);
+				enemyName.b = nk_propertyf(ctx, "#B:", 0, enemyName.b, 1.0f, 0.01f, 0.005f);
+				enemyName.a = nk_propertyf(ctx, "#A:", 0, enemyName.a, 1.0f, 0.01f, 0.005f);
+
+				config::drawboxes.nameColor = fcolor4{ enemyName.r,enemyName.g,enemyName.b,enemyName.a };
+
+				nk_combo_end(ctx);
 			}
 		}
 
-		nk_layout_row_dynamic(ctx, 25, 1);
-		if (nk_combo_begin_color(ctx, nk_rgb_cf(enemyChams), nk_vec2(nk_widget_width(ctx), 400))) {
-			nk_layout_row_dynamic(ctx, 120, 1);
-			enemyChams = nk_color_picker(ctx, enemyChams, NK_RGBA);
-			nk_layout_row_dynamic(ctx, 25, 1);
-			enemyChams.r = nk_propertyf(ctx, "#R:", 0, enemyChams.r, 1.0f, 0.01f, 0.005f);
-			enemyChams.g = nk_propertyf(ctx, "#G:", 0, enemyChams.g, 1.0f, 0.01f, 0.005f);
-			enemyChams.b = nk_propertyf(ctx, "#B:", 0, enemyChams.b, 1.0f, 0.01f, 0.005f);
-			enemyChams.a = nk_propertyf(ctx, "#A:", 0, enemyChams.a, 1.0f, 0.01f, 0.005f);
 
-			config::chams.enemyColor = fcolor4 { enemyChams.r,enemyChams.g,enemyChams.b,enemyChams.a};
+		//nk_layout_row_dynamic(ctx, 30, 2);
+		//nk_label(ctx, "yeet:", NK_TEXT_RIGHT);
+		//nk_edit_string(ctx, NK_EDIT_FIELD, new_msg, &new_msg_len, 64, nk_filter_ascii);
+		//if (nk_button_label(ctx, "add msg")) {
+		//	if (strlen(new_msg) > 0) {
+		//		Misc::messages.push_back(std::string(new_msg));
+		//		new_msg[0] = '\0';
+		//		new_msg_len = 0;
+		//	}
+		//}
 
-			nk_combo_end(ctx);
-		}
-
+		nk_layout_row_dynamic(ctx, 6, 1);
+		nk_spacer(ctx);
 
 		// menu highlight color picker
 		nk_layout_row_dynamic(ctx, 20, 1);
-		nk_label(ctx, "menu highlight:", NK_TEXT_LEFT);
-		nk_layout_row_dynamic(ctx, 25, 1);
+		nk_label(ctx, xorstr_("menu highlight:"), NK_TEXT_LEFT);
+		nk_layout_row_dynamic(ctx, 25, 2);
 		if (nk_combo_begin_color(ctx, nk_rgb_cf(highlightf), nk_vec2(nk_widget_width(ctx), 400))) {
 			nk_layout_row_dynamic(ctx, 120, 1);
 			highlightf = nk_color_picker(ctx, highlightf, NK_RGBA);
@@ -330,10 +362,29 @@ void gui::Render() noexcept{
 			highlightf.a = nk_propertyf(ctx, "#A:", 0, highlightf.a, 1.0f, 0.01f, 0.005f);
 			nk_combo_end(ctx);
 		}
+		if (nk_combo_begin_color(ctx, nk_rgb_cf(highlighthf), nk_vec2(nk_widget_width(ctx), 400))) {
+			nk_layout_row_dynamic(ctx, 120, 1);
+			highlighthf = nk_color_picker(ctx, highlighthf, NK_RGBA);
+			nk_layout_row_dynamic(ctx, 25, 1);
+			highlighthf.r = nk_propertyf(ctx, "#R:", 0, highlighthf.r, 1.0f, 0.01f, 0.005f);
+			highlighthf.g = nk_propertyf(ctx, "#G:", 0, highlighthf.g, 1.0f, 0.01f, 0.005f);
+			highlighthf.b = nk_propertyf(ctx, "#B:", 0, highlighthf.b, 1.0f, 0.01f, 0.005f);
+			highlighthf.a = nk_propertyf(ctx, "#A:", 0, highlighthf.a, 1.0f, 0.01f, 0.005f);
+			nk_combo_end(ctx);
+		}
 
+		//nk_layout_row_dynamic(ctx, 45, 1);
+		//nk_spacer(ctx);
+		
 		//unhook button
-		nk_layout_row_static(ctx, 30, 80, 1);
-		if (nk_button_label(ctx, "unhook"))
+		nk_layout_row_dynamic(ctx, 30, 3);
+		if (nk_button_label(ctx, "Record")) {
+
+		}
+		if (nk_button_label(ctx, "Screenshot")) {
+
+		}
+		if (nk_button_label(ctx, "Quit"))
 			globals::shouldUnload = true;
 	}
 	nk_end(ctx);
@@ -348,8 +399,8 @@ void gui::Render() noexcept{
 	MSG msg;
 	nk_input_begin(ctx);
 	while (PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE)) {
-		if (msg.message == WM_QUIT)
-			log_console("Nuklear | Quit Button Pressed", Color::Red);
+		//if (msg.message == WM_QUIT)
+		//	log_console("Nuklear | Quit Button Pressed", Color::Red);
 		TranslateMessage(&msg);
 		DispatchMessageW(&msg);
 	}
@@ -357,15 +408,15 @@ void gui::Render() noexcept{
 
 }
 
-void gui::RenderSpectatorList() noexcept {
-	/*if (nk_begin(ctx, "spectators", nk_rect(30, 100, 300, 400),
-		NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE |
-		NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE | NK_WINDOW_CLOSABLE))
-	{
-
-	}
-	nk_end(ctx);*/
-}
+//void gui::RenderSpectatorList() noexcept {
+//	/*if (nk_begin(ctx, "spectators", nk_rect(30, 100, 300, 400),
+//		NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE |
+//		NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE | NK_WINDOW_CLOSABLE))
+//	{
+//
+//	}
+//	nk_end(ctx);*/
+//}
 
 LRESULT CALLBACK WindowProcess(
 	HWND window,
@@ -417,8 +468,11 @@ long __stdcall hooks::EndScene(IDirect3DDevice9* device) noexcept {
 	if (gui::open)
 		gui::Render();
 
-	if (config::misc.enableSpectatorList)
-		gui::RenderSpectatorList();
+	if (config::drawboxes.enabled)
+		box::DrawBoxes(device);
+
+	//if (config::misc.enableSpectatorList)
+	//	gui::RenderSpectatorList();
 
 	return hr;
 }
@@ -441,12 +495,16 @@ HRESULT __stdcall hooks::Reset(IDirect3DDevice9* device, D3DPRESENT_PARAMETERS* 
 		D3DVIEWPORT9 viewport;
 		device->GetViewport(&viewport);
 
+		// forward reset to our line drawing code so it knows the correct screen size too
+		Draw::Reset(viewport.Width, viewport.Height);
+
 		gui::ctx = nk_d3d9_init(device, viewport.Width, viewport.Height);
+		
+
 		struct nk_font_atlas* atlas;
 		nk_d3d9_font_stash_begin(&atlas);
 		nk_d3d9_font_stash_end();
 	}
-
 
 	return hr;
 }

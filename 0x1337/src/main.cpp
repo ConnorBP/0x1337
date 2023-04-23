@@ -4,18 +4,19 @@
 #include <thread>
 
 #include "core/hooks.h"
+#include "core/gui.h"
 
-namespace gui {
-	void Setup();
-	void Destroy();
-}
+//namespace gui {
+//	void Setup();
+//	void Destroy();
+//}
 
 DWORD WINAPI Setup(LPVOID instance)
 {
 	try {
 		interfaces::Setup();
-		memory::Setup();
-		netvars::Setup();
+		//memory::Setup();
+		//netvars::Setup();
 		gui::Setup();
 		hooks::Setup();
 	}
@@ -24,31 +25,26 @@ DWORD WINAPI Setup(LPVOID instance)
 		MessageBox(
 			0,
 			error.what(),
-			"0x1337 error",
+			"error loading GameRecord process",
 			MB_OK | MB_ICONEXCLAMATION
 		);
 
 		globals::shouldUnload = true;
 	}
 
-	//x86RetSpoof::invokeStdcall<int>(
-	//	std::uintptr_t(&MessageBoxW),
-	//	std::uintptr_t(memory::clientGadgetAddress),
-	//	nullptr,
-	//	L"return address spoof working",
-	//	L"Success",
-	//	MB_OK
-	//);
-
-
-	while (!GetAsyncKeyState(VK_DELETE) && !globals::shouldUnload)
+	while (/*!GetAsyncKeyState(VK_DELETE) && */ !globals::shouldUnload)
 		std::this_thread::sleep_for(std::chrono::milliseconds(200));
+	
+
+	gui::open = false;
+	interfaces::inputSystem->EnableInput(true);
 
 	std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-	interfaces::inputSystem->EnableInput(true);
-
 	hooks::Destroy();
+
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
 	gui::Destroy();
 	FreeLibraryAndExitThread(static_cast<HMODULE>(instance), EXIT_SUCCESS);
 }
